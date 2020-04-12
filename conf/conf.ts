@@ -1,0 +1,3 @@
+
+
+export const vk_token = 'fb8628df896693ac5b545c22203acffd1d050aac7f70a070cca0ec50d13f5595d3a73654ed29ed0b1b5b9'
