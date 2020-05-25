@@ -7,6 +7,12 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
+      city: {
+        type: Sequelize.INTEGER
+      },
+      sex: {
+        type: Sequelize.INTEGER
+      }
     });
   },
   down: (queryInterface, Sequelize) => {

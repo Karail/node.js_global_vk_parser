@@ -5,25 +5,23 @@ class WrapperService {
     get(clb) {
         try {
 
-            const arr = [
-            ]
+            const token = '0b994e373936ad06b4c5d9736bc5d6c64aa6a5b76880342087dd24ddcec24417576ac4a72b55365deb956';
 
-            let num = 100
+            let countOperation = 1200;
 
-            let count = 1000;
+            let countQuery = 1000;
+
             let offset = 0;
+            
             let i = 1;
-            let k = 0
+
             let timer = setInterval(async () => {
-                offset = await clb(arr[k], i, offset, count)
+                offset = await clb(token, i, offset, countQuery)
                 if (offset === 0)
                     i++;
-                k++;
-                if (i >= num)
+                if (i >= countOperation)
                     clearInterval(timer);
-                if (k >= arr.length)
-                    k = 0;
-            }, 250);
+            }, 3000);
 
         } catch (err) {
             console.log(err);

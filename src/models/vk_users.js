@@ -10,6 +10,12 @@ const VKgroupF = (sequelize, DataTypes) => {
       primaryKey: true,
       type: DataTypes.INTEGER
     },
+    city: {
+      type: DataTypes.INTEGER
+    },
+    sex: {
+      type: DataTypes.INTEGER
+    }
   }, {});
   VKgroup.associate = function(models) {
     // associations can be defined here

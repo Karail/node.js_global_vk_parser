@@ -5,6 +5,11 @@ const sequelize = require('../../db/db')
 
 const VKgroupF = (sequelize, DataTypes) => {
   const VKgroup = sequelize.define('vk_users_groups', {
+    id: {
+      autoIncrement: true,
+      primaryKey: true,
+      type: DataTypes.INTEGER
+    },
     user_id: {
       allowNull: false,
       type: DataTypes.INTEGER
