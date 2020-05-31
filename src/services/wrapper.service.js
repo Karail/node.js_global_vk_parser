@@ -17,7 +17,6 @@ class WrapperService {
 
             const timer = setTimeout(async function run() {
                 offset = await clb(token, i, offset, countQuery)
-                console.log('------------------------------------------------', offset)
                 if (offset === 0)
                     i++;
                 if (i >= countOperation)

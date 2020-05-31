@@ -45,8 +45,11 @@ const search = async () => {
                         select group_id from vk_users_groups  WHERE user_id = ${secondaryUser} group by group_id 
                     ) equ using (group_id) WHERE user_id = ${primaryUser}
                 `);
+                
+                const percent = (matching.length / primaryUserGroup_arr.length * 100).toFixed(2)
+
                 console.log(`колличество совпадений c юзером ${secondaryUser}: `, matching.length)
-                console.log(`процентное соотношение с юзером ${secondaryUser}: ${(matching.length / primaryUserGroup_arr.length * 100).toFixed(2)}%`)
+                console.log(`процентное соотношение с юзером ${secondaryUser}: ${percent}%`)
                 console.log(`список схожих групп с юзером ${secondaryUser}: `, matching)
                 spentUser.push(secondaryUser)
             }

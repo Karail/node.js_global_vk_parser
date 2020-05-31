@@ -16,8 +16,6 @@ const clb = async (token, i, offset, count) => {
 
     if (dataUser.response && dataUser.response[0].deactivated !== 'deleted' && dataUser.response[0].deactivated !== 'banned') {
 
-        console.log(dataUser.response[0])
-
         const user = await vkUsers.findOne({ where: { id: i } });
 
         if (!user) {
@@ -36,7 +34,6 @@ const clb = async (token, i, offset, count) => {
 
         const response = await fetch(`https://api.vk.com/method/groups.get?user_id=${i}&offset=${offset}&count=${count}&v=5.103&access_token=${token}&scope=offline`);
         const data = await response.json();
-        console.log(offset)
         if (data.response) {
             const { items } = data.response;
             if (items && items.length > 0) {
