@@ -5,7 +5,6 @@ const app = express();
 const wrapperService = require('./services/wrapper.service')
 
 const {
-    vkGroup,
     vkUsers,
     vkUsersGroups,
 } = require('./models/control');

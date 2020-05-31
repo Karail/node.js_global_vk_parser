@@ -5,11 +5,11 @@ class WrapperService {
     get(clb) {
         try {
 
-            const token = '0b994e373936ad06b4c5d9736bc5d6c64aa6a5b76880342087dd24ddcec24417576ac4a72b55365deb956';
+            const token = 'cb3798a19ae8466f105a19bfba29e869366d2eb9647ca94ad98a97df56754ea24bf562b886debc80e8bd1';
 
-            let countOperation = 1200;
+            let countOperation = 25;
 
-            let countQuery = 1000;
+            let countQuery = 10;
 
             let offset = 0;
             
@@ -21,7 +21,7 @@ class WrapperService {
                     i++;
                 if (i >= countOperation)
                     clearInterval(timer);
-            }, 3000);
+            }, 2000);
 
         } catch (err) {
             console.log(err);
