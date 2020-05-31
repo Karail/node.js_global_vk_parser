@@ -36,24 +36,21 @@ const clb = async (token, i, offset, count) => {
 
         const response = await fetch(`https://api.vk.com/method/groups.get?user_id=${i}&offset=${offset}&count=${count}&v=5.103&access_token=${token}&scope=offline`);
         const data = await response.json();
-
+        console.log(offset)
         if (data.response) {
             const { items } = data.response;
-            if (items) {
-                if (items.length !== 0) {
-                    console.log('user: ' + i)
-                    console.log('groups: ' + items.length);
+            if (items && items.length > 0) {
+                console.log('user: ' + i)
+                console.log('groups: ' + items.length);
 
-                    for (item of items) {
-                        await vkUsersGroups.create({
-                            user_id: i,
-                            group_id: item,
-                        })
-                    }
+                for (item of items) {
+                    await vkUsersGroups.create({
+                        user_id: i,
+                        group_id: item,
+                    })
+                }
 
-                    return offset += count;
-                } else
-                    return 0;
+                return offset += count;
             } else
                 return 0;
         } else
@@ -68,4 +65,4 @@ app.listen(8080, () => {
     console.log('start worker')
 })
 
-// 'https://oauth.vk.com/authorize?client_id=7406054&display=page&redirect_uri=&scope=friends,groups&response_type=token&v=5.52'
+// https://oauth.vk.com/authorize?client_id=7406054&display=page&redirect_uri=&scope=friends,groups&response_type=token&v=5.52
