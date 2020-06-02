@@ -2,7 +2,7 @@
 import { Sequelize } from "sequelize-typescript"
 import { VK_UserGroup, VK_User } from './models/';
 
-const sequelize = new Sequelize('vk', 'root', 'joker2002', {
+const sequelize = new Sequelize('vk2', 'root', 'joker2002', {
     host: 'localhost',
     dialect: 'mysql',
     define: {

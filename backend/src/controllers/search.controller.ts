@@ -17,7 +17,7 @@ class SearchController {
             const primaryUser = await VK_User.findByPk(Number(primaryUserId))
 
             if (!primaryUser)
-            throw new Error('user is not exist')
+                throw new Error('user is not exist')
 
             const primaryUserGroup_arr = await VK_UserGroup.findAll({
                 where: {
@@ -56,17 +56,13 @@ class SearchController {
 
                         const percent = (matching.length / primaryUserGroup_arr.length * 100).toFixed(2)
 
-                        console.log(`колличество совпадений c юзером ${secondaryUserId}: `, matching.length)
-                        console.log(`процентное соотношение с юзером ${secondaryUserId}: ${percent}%`)
-                        console.log(`список схожих групп с юзером ${secondaryUserId}: `, matching)
-
                         const user = await VK_User.findByPk(secondaryUserId)
 
                         resSecondaryUser.push({
                             response: {
                                 count: matching.length,
-                                percent: percent,
-                                user: user,
+                                percent,
+                                user,
                                 groups: matching.map((el: matchingType) => el.group_id)
                             },
                         })
