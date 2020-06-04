@@ -27,11 +27,11 @@ export class Parser {
                     clearTimeout(timer);
                     process.exit(1);
                 } else
-                    setTimeout(runTimer.bind(this), 1800);
+                    setTimeout(runTimer.bind(this), 700);
 
             }
 
-            const timer = setTimeout(runTimer.bind(this), 1800);
+            const timer = setTimeout(runTimer.bind(this), 700);
 
         } catch (ex) {
             console.log(ex);
@@ -46,13 +46,14 @@ export class Parser {
     ): Promise<number> {
 
         try {
-            const response = await fetch(`https://api.vk.com/method/users.get?user_ids=${Istart}&fields=city,sex,last_seen,domain,has_photo&name_case=nom&v=5.103&access_token=${token}&scope=offline`);
+            const response = await fetch(`
+            https://api.vk.com/method/users.get?user_ids=${Istart}&fields=city,sex,last_seen,domain,has_photo&name_case=nom&v=5.103&access_token=${token}&scope=offline`);
             const dataUser = await response.json();
 
             const user = await VK_User.findOne({ where: { id: Istart } });
 
             if (!user) {
-                console.log(dataUser.response[0])
+                console.log(dataUser)
             }
             
             if (
@@ -61,7 +62,8 @@ export class Parser {
                 dataUser.response[0].deactivated !== 'banned'
             ) {
 
-                const response = await fetch(`https://api.vk.com/method/groups.get?user_id=${Istart}&offset=${offset}&count=${countQuery}&v=5.103&access_token=${token}&scope=offline`);
+                const response = await fetch(`
+                https://api.vk.com/method/groups.get?user_id=${Istart}&offset=${offset}&count=${countQuery}&v=5.103&access_token=${token}&scope=offline`);
                 const data = await response.json();
 
                 if (data.response) {
@@ -69,13 +71,23 @@ export class Parser {
                     if (items && items.length > 0) {
 
                         if (!user) {
-                            await VK_User.create({
-                                id: Istart,
-                                sex: dataUser.response[0].sex,
-                                city: dataUser.response[0].city.id || null,
-                                has_photo: dataUser.response[0].has_photo,
-                                domain: dataUser.response[0].domain
-                            })
+                            if (dataUser.response[0].city) {
+                                await VK_User.create({
+                                    id: Istart,
+                                    sex: dataUser.response[0].sex,
+                                    city: dataUser.response[0].city.id,
+                                    has_photo: dataUser.response[0].has_photo,
+                                    domain: dataUser.response[0].domain
+                                })
+                            } else {
+                                await VK_User.create({
+                                    id: Istart,
+                                    sex: dataUser.response[0].sex,
+                                    city: null,
+                                    has_photo: dataUser.response[0].has_photo,
+                                    domain: dataUser.response[0].domain
+                                })
+                            }
                         }
 
                         for (let item of items) {

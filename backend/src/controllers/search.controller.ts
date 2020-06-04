@@ -25,6 +25,8 @@ class SearchController {
                 },
                 attributes: ['group_id'],
             }).map((el) => el.group_id)
+            console.log(primaryUserGroup_arr)
+
 
             for (let primaryUserGroup of primaryUserGroup_arr) {
 
@@ -39,6 +41,8 @@ class SearchController {
                     },
                     attributes: ['user_id']
                 }).map((el) => el.user_id)
+
+
 
                 for (let secondaryUserId of secondaryUser_arr) {
 
@@ -69,11 +73,9 @@ class SearchController {
 
                         spentUser.push(secondaryUserId)
                     }
-
                 }
-
-                res.json(resSecondaryUser)
             }
+            res.json(resSecondaryUser)
         } catch (ex) {
             console.log(ex);
             res.status(500).json(ex.message);
