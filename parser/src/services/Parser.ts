@@ -5,33 +5,35 @@ export class Parser {
 
     constructor(
         public token: string,
-        public Istart: number,
-        public Iend: number
     ) { }
 
-    run() {
+    run(start: number, end: number) {
         try {
 
-            let countQuery = 1000;
+            let startId = start;
 
-            let offset = 0;
+            let countGroup = 1000;
+
+            let offsetGroup = 0;
+
+            const time = 700;
 
             async function runTimer() {
 
-                offset = await this.toParse(this.token, this.Istart, offset, countQuery)
+                offsetGroup = await this.toParse(startId, offsetGroup, countGroup)
 
-                if (offset === 0)
-                    this.Istart++;
+                if (offsetGroup === 0)
+                    startId++;
 
-                if (this.Istart >= this.Iend) {
+                if (startId >= end) {
                     clearTimeout(timer);
-                    process.exit(1);
+                    this.runUpdate(start, end)
                 } else
-                    setTimeout(runTimer.bind(this), 700);
+                    setTimeout(runTimer.bind(this), time);
 
             }
 
-            const timer = setTimeout(runTimer.bind(this), 700);
+            const timer = setTimeout(runTimer.bind(this), time);
 
         } catch (ex) {
             console.log(ex);
@@ -39,23 +41,22 @@ export class Parser {
     }
 
     async toParse(
-        token: string,
-        Istart: number,
-        offset: number,
-        countQuery: number
+        id: number,
+        offsetGroup: number,
+        countGroup: number
     ): Promise<number> {
 
         try {
             const response = await fetch(`
-            https://api.vk.com/method/users.get?user_ids=${Istart}&fields=city,sex,last_seen,domain,has_photo&name_case=nom&v=5.103&access_token=${token}&scope=offline`);
+            https://api.vk.com/method/users.get?user_ids=${id}&fields=city,sex,last_seen,domain,has_photo&name_case=nom&v=5.103&access_token=${this.token}&scope=offline`);
             const dataUser = await response.json();
 
-            const user = await VK_User.findOne({ where: { id: Istart } });
+            const user = await VK_User.findByPk(id);
 
             if (!user) {
                 console.log(dataUser)
             }
-            
+
             if (
                 dataUser.response &&
                 dataUser.response[0].deactivated !== 'deleted' &&
@@ -63,41 +64,33 @@ export class Parser {
             ) {
 
                 const response = await fetch(`
-                https://api.vk.com/method/groups.get?user_id=${Istart}&offset=${offset}&count=${countQuery}&v=5.103&access_token=${token}&scope=offline`);
+                https://api.vk.com/method/groups.get?user_id=${id}&offset=${offsetGroup}&count=${countGroup}&v=5.103&access_token=${this.token}&scope=offline`);
                 const data = await response.json();
 
                 if (data.response) {
                     const { items } = data.response;
                     if (items && items.length > 0) {
 
+                        const { sex, city, has_photo, domain } = dataUser.response[0];
+
                         if (!user) {
-                            if (dataUser.response[0].city) {
-                                await VK_User.create({
-                                    id: Istart,
-                                    sex: dataUser.response[0].sex,
-                                    city: dataUser.response[0].city.id,
-                                    has_photo: dataUser.response[0].has_photo,
-                                    domain: dataUser.response[0].domain
-                                })
-                            } else {
-                                await VK_User.create({
-                                    id: Istart,
-                                    sex: dataUser.response[0].sex,
-                                    city: null,
-                                    has_photo: dataUser.response[0].has_photo,
-                                    domain: dataUser.response[0].domain
-                                })
-                            }
+                            await VK_User.create({
+                                id,
+                                sex,
+                                city: city ? dataUser.response[0].city.id : null,
+                                has_photo,
+                                domain
+                            });
                         }
 
                         for (let item of items) {
                             await VK_UserGroup.create({
-                                user_id: Istart,
+                                user_id: id,
                                 group_id: item,
                             })
                         }
 
-                        return offset += countQuery;
+                        return offsetGroup += countGroup;
                     } else
                         return 0;
                 } else
@@ -105,9 +98,133 @@ export class Parser {
             } else
                 return 0;
         } catch (ex) {
-            console.log(ex)
+            console.log(ex);
         }
+    }
 
+    async runUpdate(start: number, end: number) {
+        try {
+
+            let countGroup = 1000;
+
+            let offsetGroup = 0;
+
+            const time = 700;
+
+            const users = await VK_User.findAll({
+                limit: end,
+                offset: start - 1,
+                order: [['id', 'DESC']]
+            });
+
+            let userId = 0;
+
+            async function runTimer() {
+
+                console.log(users[userId].get())
+
+                offsetGroup = await this.toParseUpdate(users[userId].id, offsetGroup, countGroup)
+
+                if (offsetGroup === 0) {
+                    userId++;
+                }
+
+
+                if (userId >= users.length) {
+
+                    this.runUpdate(start, end)
+
+                } else
+                    setTimeout(runTimer.bind(this), time);
+
+            }
+
+            const timer = setTimeout(runTimer.bind(this), time);
+
+        } catch (ex) {
+            console.log(ex);
+        }
+    }
+
+    looprun() {
+
+    }
+
+    async toParseUpdate(
+        id: number,
+        offsetGroup: number,
+        countGroup: number,
+    ): Promise<number> {
+
+        try {
+
+            const user = await VK_User.findByPk(id);
+
+            if (user) {
+
+                const response = await fetch(`
+                https://api.vk.com/method/users.get?user_ids=${id}&fields=city,sex,last_seen,domain,has_photo&name_case=nom&v=5.103&access_token=${this.token}&scope=offline`);
+                const dataUser = await response.json();
+
+                if (
+                    dataUser.response &&
+                    dataUser.response[0].deactivated !== 'deleted' &&
+                    dataUser.response[0].deactivated !== 'banned'
+                ) {
+
+                    const response = await fetch(`
+                    https://api.vk.com/method/groups.get?user_id=${id}&offset=${offsetGroup}&count=${countGroup}&v=5.103&access_token=${this.token}&scope=offline`);
+                    const data = await response.json();
+
+                    if (data.response) {
+
+                        const { items } = data.response;
+
+                        console.log(data)
+
+                        if (items && items.length > 0) {
+
+                            const { sex, city, has_photo, domain } = dataUser.response[0]
+
+                            await VK_User.update({
+                                id,
+                                sex,
+                                city: city ? dataUser.response[0].city.id : null,
+                                has_photo,
+                                domain
+                            }, {
+                                where: { id }
+                            });
+
+                            if (offsetGroup === 0) {
+                                await VK_UserGroup.destroy({
+                                    where: {
+                                        user_id: id
+                                    }
+                                })
+                            }
+
+                            for (let item of items) {
+                                await VK_UserGroup.create({
+                                    user_id: id,
+                                    group_id: item,
+                                })
+                            }
+
+                            return offsetGroup += countGroup;
+                        } else
+                            return 0;
+                    } else
+                        return 0;
+                } else
+                    return 0;
+            } else
+                return 0;
+
+
+        } catch (ex) {
+            console.log(ex);
+        }
     }
 }
 
