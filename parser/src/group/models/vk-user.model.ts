@@ -1,20 +1,19 @@
 import { Table, Model, Column, DataType } from 'sequelize-typescript';
 
-
 @Table({
     modelName: 'vk_users'
 })
-export class VK_User extends Model<VK_User> {
+export class VkUser extends Model<VkUser> {
 
     @Column
-    city: number;
+    vkId!: number;
 
     @Column
-    sex: number;
+    city!: number;
 
     @Column
-    has_photo: number;
+    sex!: number;
 
     @Column
-    domain: string;
+    has_photo!: number;
 }

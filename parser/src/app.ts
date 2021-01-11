@@ -1,26 +1,26 @@
+import dotenv from 'dotenv';
+dotenv.config();
 
-import * as express from 'express';
-import sequelize from './database';
-import { Parser } from './services/Parser';
+import express from 'express';
+// Services
+import { AppService } from './app.service';
+import { Logger } from './shared/services';
+// Database
+import { sequelize } from './database';
+
 const app = express();
 
-app.listen(8082, async () => {
+app.listen(process.env.APP_PORT, async () => {
     try {
-        await sequelize.authenticate()
-        await sequelize.sync()
-        console.log("start server")
+        await sequelize.sync();
 
-        const parser = new Parser(
-            '25d2a9be91f3e7dbfbd6890e11f66b8a97372efa02082ccb5f6888da4c8f2fce21a85bcc905d0695c61ee',
-        );
+        new AppService();
 
-        parser.run(
-            1,
-            6
-        );
+        Logger.info(`start parser-app port:${process.env.APP_PORT}`);
 
-    } catch (ex) {
-        console.log(ex);
+    } catch (e) {
+        Logger.error(e);
+        throw e;
     }
 });
 

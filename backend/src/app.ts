@@ -1,18 +1,27 @@
 
-import * as express from 'express';
-import sequelize from './database';
-import searchRouter from './routes/search.router';
+import dotenv from 'dotenv';
+dotenv.config();
+
+import express from 'express';
+// Services
+import { Logger } from './shared/services';
+// Routes
+import { groupRouter } from './group/routes';
+// Database
+import { sequelize } from './database';
 
 const app = express();
 
-app.use('/search', searchRouter);
+app.use('/group', groupRouter);
 
-app.listen(8080, async () => {
+app.listen(process.env.APP_PORT, async () => {
     try {
-        await sequelize.authenticate()
-        await sequelize.sync()
-        console.log("start server")
-    } catch (ex) {
-        console.log(ex);
+        await sequelize.sync();
+
+        Logger.info(`start backend-app port:${process.env.APP_PORT}`);
+
+    } catch (e) {
+        Logger.error(e);
+        throw e;
     }
 });
